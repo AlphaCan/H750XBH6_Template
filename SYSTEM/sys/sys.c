@@ -354,6 +354,9 @@ void Stm32_Clock_Init(uint32_t plln,uint32_t pllm,uint32_t pllp,uint32_t pllq)
 
 void SYS_QSPI_Enable_Memmapmode(void)
 {
+	uint32_t tempreg=0;
+	volatile uint32_t *data_reg=&QUADSPI->DR;
+	
 	RCC->AHB4ENR |= 1<<1;	//打开GPIOB时钟
 	RCC->AHB4ENR |= 1<<5;	//打开GPIOF时钟
 	RCC->AHB3ENR |= 1<14;	//打开QSPI时钟
@@ -370,6 +373,59 @@ void SYS_QSPI_Enable_Memmapmode(void)
 	SYS_GPIO_AF_Set(GPIOF,GPIO_PIN_8,10);//AF10
 	SYS_GPIO_AF_Set(GPIOF,GPIO_PIN_9,10);//AF10
 	
+	RCC->AHB3RSTR|=1<<14;			//复位QSPI
+	RCC->AHB3RSTR&=~(1<<14);		//停止复位QSPI
+	while(QUADSPI->SR&(1<<5));		//等待BUSY位清零
+	
+	//QSPI时钟默认来自rcc_hclk3(由RCC_D1CCIPR的QSPISEL[1:0]选择)
+	tempreg=(2-1)<<24;		//设置QSPI时钟为AHB时钟的1/2,即200M/2=100Mhz,10ns
+	tempreg|=(4-1)<<8;		//设置FIFO阈值为4个字节(最大为31,表示32个字节)
+	tempreg|=0<<7;			//选择FLASH1
+	tempreg|=0<<6;			//禁止双闪存模式
+	tempreg|=1<<4;			//采样移位半个周期(DDR模式下,必须设置为0)
+	QUADSPI->CR=tempreg;	//设置CR寄存器
+	tempreg=(23-1)<<16;		//设置FLASH大小为2^23=8MB
+	tempreg|=(5-1)<<8;		//片选高电平时间为5个时钟(10*5=50ns),即手册里面的tSHSL参数
+	tempreg|=1<<0;			//Mode3,空闲时CLK为高电平
+	QUADSPI->DCR=tempreg;	//设置DCR寄存器
+	QUADSPI->CR|=1<<0;		//使能QSPI
+	
+	//W25Q64写使能
+	while(QUADSPI->SR&(1<<5));		//等待BUSY位清零 
+	QUADSPI->CCR=QUADSPI->CCR=0X00000106;		//发送0X06指令，W25QXX写使能
+	while((QUADSPI->SR&(1<<1))==0);	//等待指令发送完成
+	QUADSPI->FCR|=1<<1;				//清除发送完成标志位 
+	
+	//使能QE位进入QSPI
+	while(QUADSPI->SR&(1<<5));		//等待BUSY位清零 
+	QUADSPI->CCR=QUADSPI->CCR=0X00000131;		//发送0X31指令，W25QXX写使能
+	QUADSPI->DLR=0;					//发送一个字节
+	while((QUADSPI->SR&(1<<2))==0);	//等待FTF
+	*(volatile uint8_t*)data_reg = 1 << 1;//QE位置1
+	while((QUADSPI->SR&(1<<1))==0);	//等待指令发送完成
+	QUADSPI->FCR|=1<<1;				//清除发送完成标志位 
+	
+	while(QUADSPI->SR&(1<<5));		//等待BUSY位清零 
+	QUADSPI->ABR=0;					//交替字节设置为0，实际上就是W25Q 0XEB指令的,M0~M7=0
+	tempreg=0XEB;					//INSTRUCTION[7:0]=0XEB,发送0XEB指令（Fast Read QUAD I/O）
+	tempreg|=3<<8;					//IMODE[1:0]=3,四线传输指令
+	tempreg|=3<<10;					//ADDRESS[1:0]=3,四线传输地址
+	tempreg|=2<<12;					//ADSIZE[1:0]=2,24位地址长度
+	tempreg|=3<<14;					//ABMODE[1:0]=3,四线传输交替字节
+	tempreg|=0<<16;					//ABSIZE[1:0]=0,8位交替字节(M0~M7)
+	tempreg|=6<<18;					//DCYC[4:0]=6,6个dummy周期
+	tempreg|=3<<24;					//DMODE[1:0]=3,四线传输数据
+	tempreg|=3<<26;					//FMODE[1:0]=3,内存映射模式
+	QUADSPI->CCR=tempreg;			//设置CCR寄存器
+	
+	//设置QSPI FLASH空间的MPU保护
+	SCB->SHCSR&=~(1<<16);			//禁止MemManage 
+	MPU->CTRL&=~(1<<0);				//禁止MPU
+	MPU->RNR=0;						//设置保护区域编号为0(1~7可以给其他内存用)
+	MPU->RBAR=0X90000000;			//基地址为0X9000 000,即QSPI的起始地址
+	MPU->RASR=0X0303002D;			//设置相关保护参数(禁止共用,允许cache,允许缓冲),详见MPU实验的解析
+	MPU->CTRL=(1<<2)|(1<<0);		//使能PRIVDEFENA,使能MPU 
+	SCB->SHCSR|=1<<16;				//使能MemManage
 }
 
 

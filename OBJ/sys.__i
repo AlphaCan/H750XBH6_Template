@@ -1,6 +1,0 @@
---c99 -c --cpu Cortex-M7.fp.dp -g -O0 --apcs=interwork --split_sections -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart1
--I.\RTE\_STM32H750XBH6
--ID:\Keil_v5\Arm\Packs\Keil\STM32H7xx_DFP\2.6.0\Drivers\CMSIS\Device\ST\STM32H7xx\Include
--ID:\Keil_v5\ARM\CMSIS\Include
--D__UVISION_VERSION="530" -DSTM32H750xx -D_RTE_ -DSTM32H750xx
--o ..\obj\sys.o --omf_browse ..\obj\sys.crf --depend ..\obj\sys.d "..\SYSTEM\sys\sys.c"
