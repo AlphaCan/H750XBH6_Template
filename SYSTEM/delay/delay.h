@@ -3,6 +3,10 @@
 #include <sys.h>
 
 
+void delay_init(uint16_t SYSCLK);
+
+
+void delay_ms(uint32_t ms);
 
 
 

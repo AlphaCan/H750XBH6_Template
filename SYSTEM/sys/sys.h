@@ -57,6 +57,31 @@
 
 
 
+void SYS_NVIC_SetVectorTable(uint32_t NVIC_VecTab,uint32_t Offset);
+
+void SYS_NVIC_SetPriorityGroup(uint32_t PriorityGroup);
+
+void SYS_NVIC_SetPriority(IRQn_Type IRQ_Number,uint32_t PreemptPriority, uint32_t SubPriority);
+
+void SYS_NVIC_EnableIRQ(IRQn_Type IRQ_Number);
+
+void SYS_NVIC_DisableIRQ(IRQn_Type IRQ_Number);
+
+void SYS_GPIO_AF_Set(GPIO_TypeDef *GPIOx,uint32_t Pin, uint32_t Alternate);
+
+void SYS_GPIO_Init(GPIO_TypeDef *GPIOx,uint32_t Pin, uint32_t Mode, uint32_t OTYPER, uint32_t OSPEED, uint32_t PUPDR);
+
+void SYS_GPIO_SetPin(GPIO_TypeDef *GPIOx, uint32_t Pin, uint8_t PinState);
+
+uint8_t SYS_GPIO_GetPin(GPIO_TypeDef *GPIOx, uint32_t Pin);
+
+void SYS_GPIO_TogglePin(GPIO_TypeDef *GPIOx, uint32_t Pin);
+
+void Cache_Enable(void);
+
+uint8_t Sys_Clock_Set(uint32_t plln,uint32_t pllm,uint32_t pllp,uint32_t pllq);
+
+void Stm32_Clock_Init(uint32_t plln,uint32_t pllm,uint32_t pllp,uint32_t pllq);
 
 void SYS_QSPI_Enable_Memmapmode(void);
 
