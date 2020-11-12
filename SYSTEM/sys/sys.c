@@ -342,7 +342,7 @@ void Stm32_Clock_Init(uint32_t plln,uint32_t pllm,uint32_t pllp,uint32_t pllq)
 	//操作地址的方式,来修改,该寄存器在<<STM32H750参考手册>>第113页,AXI_TARGx_FN_MOD
 	*((volatile uint32_t*)0x51008108)=0x00000001;//设置AXI SRAM的矩阵读取能力为1 
 	Sys_Clock_Set(plln,pllm,pllp,pllq);//设置时钟  
-	SYS_QSPI_Enable_Memmapmode();		//使能QSPI内存映射模式
+	//SYS_QSPI_Enable_Memmapmode();		//使能QSPI内存映射模式
 	Cache_Enable();					//使能L1 Cache
 	//配置向量表				  
 #ifdef  VECT_TAB_RAM

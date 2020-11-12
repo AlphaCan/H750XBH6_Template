@@ -19,7 +19,7 @@ void USART_Init()
 	USART1->CR1|=1<<5;    	//接收缓冲区非空中断使能
 	SYS_NVIC_SetPriority(USART1_IRQn,1,0);
 	SYS_NVIC_EnableIRQ(USART1_IRQn);
-	USART1->BRR = 
+	 
 	
 }
 
