@@ -45,8 +45,8 @@ void USART_Init(uint32_t bound)
 	RCC->APB2ENR |= 1<<4;	//打开USART1时钟
 	
 	SYS_GPIO_Init(GPIOA,GPIO_PIN_10|GPIO_PIN_9,GPIO_MODE_AF,GPIO_OTYPE_PP,GPIO_SPEED_HIGH,GPIO_PUPD_PU);
-	SYS_GPIO_AF_Set(GPIOA,GPIO_PIN_10,7);
-	SYS_GPIO_AF_Set(GPIOA,GPIO_PIN_9,7);
+	SYS_GPIO_AF_Set(GPIOA,GPIO_PIN_10|GPIO_PIN_9,7);
+	//SYS_GPIO_AF_Set(GPIOA,9,7);
 	
 	USART1->CR1 = 0;//配置寄存器，首先必须关闭串口使能
 	USART1->CR1|= 0<<28; //设置M1 1个起始位 8个数据位 n个停止位
@@ -56,7 +56,7 @@ void USART_Init(uint32_t bound)
 	USART1->CR1|=1<<2;  	//串口接收使能
 	USART1->CR1|=1<<5;    	//接收缓冲区非空中断使能
 	
-	boundtemp = (100*100000+bound/2)/bound;//四舍五入
+	boundtemp = (100*1000000+bound/2)/bound;//四舍五入
 	USART1->BRR = boundtemp;
 	USART1->CR1|=1<<0;//使能串口
 	

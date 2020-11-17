@@ -4,7 +4,7 @@
 #include "sys.h"
 
 
-
+void USART_Init(uint32_t bound);
 
 
 

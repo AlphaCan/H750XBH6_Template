@@ -96,7 +96,7 @@ void SYS_NVIC_DisableIRQ(IRQn_Type IRQ_Number)
 /*********************************************************************
 //	@param		:
 //		1.GPIO_TypeDef *GPIOx	范围GPIOA~GPIOK.
-//		2.uint32_t Pin			引脚编号0x0000~0xffff
+//		2.uint32_t Pin			引脚编号0~15
 //		3.uint32_t Alternate	复用功能编号
 //		AF0:SYS		AF1：TIM1/2/16/17/LPTIM1/HRTIM1		AF2:SAI1/TIM3/4/5/12/HRTIM1		AF3:LPUART/TIM8/LPTIM2/3/4/5/HRTIM1/DFSDM1
 //		AF4:I2C1/2/3/4/USART1/TIM15/LPTIM2/DFSDM1/CEC	AF5:SPI1/2/3/4/5/6/CEC			AF6:SPI2/3/SAI1/3/I2C4/UART4/DFSDM1
@@ -112,8 +112,25 @@ void SYS_NVIC_DisableIRQ(IRQn_Type IRQ_Number)
 *********************************************************************/	
 void SYS_GPIO_AF_Set(GPIO_TypeDef *GPIOx,uint32_t Pin, uint32_t Alternate)
 {
-	GPIOx->AFR[Pin >> 3] &= ~(0x0f<<(Pin & 0x07)*4);//清空原来的数据
-	GPIOx->AFR[Pin >> 3] |= (uint32_t)Alternate<<((Pin & 0x07)*4);//设置
+	//GPIOx->AFR[Pin >> 3] &= ~(0x0f<<(Pin&0x07)*4);//清空原来的数据
+	//GPIOx->AFR[Pin >> 3] |= (uint32_t)Alternate<<((Pin&0x07)*4);//设置
+	uint32_t position = 0x00;//0~15
+	uint32_t iocurrent = 0x00;
+	
+	while((Pin >> position) != 0x00)
+	{
+		iocurrent = Pin & (1 << position);//找到要设置的引脚
+		if(iocurrent != 0x00)//需要设置
+		{
+			GPIOx->AFR[position >> 3] &= ~(0xF << ((position & 0x07) * 4));
+			GPIOx->AFR[position >> 3] |= (uint32_t)Alternate << ((position & 0x07) * 4);
+		}
+		position++;
+
+	}
+
+	
+	
 }
 
 
