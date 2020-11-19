@@ -359,7 +359,7 @@ void Stm32_Clock_Init(uint32_t plln,uint32_t pllm,uint32_t pllp,uint32_t pllq)
 	//操作地址的方式,来修改,该寄存器在<<STM32H750参考手册>>第113页,AXI_TARGx_FN_MOD
 	*((volatile uint32_t*)0x51008108)=0x00000001;//设置AXI SRAM的矩阵读取能力为1 
 	Sys_Clock_Set(plln,pllm,pllp,pllq);//设置时钟  
-	//SYS_QSPI_Enable_Memmapmode();		//使能QSPI内存映射模式
+	SYS_QSPI_Enable_Memmapmode();		//使能QSPI内存映射模式
 	Cache_Enable();					//使能L1 Cache
 	//配置向量表				  
 #ifdef  VECT_TAB_RAM
@@ -376,7 +376,7 @@ void SYS_QSPI_Enable_Memmapmode(void)
 	
 	RCC->AHB4ENR |= 1<<1;	//打开GPIOB时钟
 	RCC->AHB4ENR |= 1<<5;	//打开GPIOF时钟
-	RCC->AHB3ENR |= 1<14;	//打开QSPI时钟
+	RCC->AHB3ENR |= 1<<14;	//打开QSPI时钟
 	
 	SYS_GPIO_Init(GPIOB,GPIO_PIN_2,GPIO_MODE_AF,GPIO_OTYPE_PP,GPIO_SPEED_HIGH,GPIO_PUPD_PU);//PB2复用功能输出
 	SYS_GPIO_Init(GPIOB,GPIO_PIN_6,GPIO_MODE_AF,GPIO_OTYPE_PP,GPIO_SPEED_HIGH,GPIO_PUPD_PU);//PB6复用功能输出
@@ -409,13 +409,13 @@ void SYS_QSPI_Enable_Memmapmode(void)
 	
 	//W25Q64写使能
 	while(QUADSPI->SR&(1<<5));		//等待BUSY位清零 
-	QUADSPI->CCR=QUADSPI->CCR=0X00000106;		//发送0X06指令，W25QXX写使能
+	QUADSPI->CCR=0X00000106;		//发送0X06指令，W25QXX写使能
 	while((QUADSPI->SR&(1<<1))==0);	//等待指令发送完成
 	QUADSPI->FCR|=1<<1;				//清除发送完成标志位 
 	
 	//使能QE位进入QSPI
 	while(QUADSPI->SR&(1<<5));		//等待BUSY位清零 
-	QUADSPI->CCR=QUADSPI->CCR=0X00000131;		//发送0X31指令，W25QXX写使能
+	QUADSPI->CCR=0X00000131;		//发送0X31指令，W25QXX写使能
 	QUADSPI->DLR=0;					//发送一个字节
 	while((QUADSPI->SR&(1<<2))==0);	//等待FTF
 	*(volatile uint8_t*)data_reg = 1 << 1;//QE位置1

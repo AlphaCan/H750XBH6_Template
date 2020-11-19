@@ -18,7 +18,7 @@ int main (void)
 	{
 		SYS_GPIO_TogglePin(GPIOB,GPIO_PIN_1|GPIO_PIN_0);
 		delay_ms(1000);
-		printf("123\r\n");
+		printf("567\r\n");
 	}
 	
 	
