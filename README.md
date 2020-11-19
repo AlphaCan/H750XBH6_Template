@@ -7,4 +7,4 @@
 
 2020.11.12 添加usart.c usart.h
 
-2020.119 修复完QSPI和USART的bug
+2020.11.19 修复完QSPI和USART的bug
