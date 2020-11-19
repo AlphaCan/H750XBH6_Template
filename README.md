@@ -6,3 +6,5 @@
 2020.11.10 添加delay.c delay.h
 
 2020.11.12 添加usart.c usart.h
+
+2020.119 修复完QSPI和USART的bug
